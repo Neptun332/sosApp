@@ -1,52 +1,43 @@
 package com.example.patry.sosapp;
 
 import android.Manifest;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.telephony.SmsManager;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
-
-import com.google.android.gms.internal.maps.zzt;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+import android.content.Intent;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.EditText;
 
 import java.security.Provider;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    private LocationUpdate locationUpdate;
+
     private GoogleMap mMap;
+
+
     public Handler handler = new Handler();
     public int MY_PERMISSIONS_REQUEST_SEND_SMS_AND_FINE_LOCATION;
 
     public boolean temp = true;
-    public Location userLocation = new Location("");
-    public float zoomlvl = 16;
 
-    public double userLat;
-    public double userLng;
+    public int sendSMSEveryInSeconds = 600; //10 *60 min
 
-   // Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)));
-    LocationManager locationManager;
-    LocationListener locationListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,20 +49,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
 
-        final Button button = findViewById(R.id.SendSMSButton);
+
+
+
+        final Button button = findViewById(R.id.settings);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                //SmsManager.getDefault().sendTextMessage("+48510602840",null,"SMS send Test", null ,null );
+                Intent intent = new Intent(MapsActivity.this, SettingsActivity.class);
+                startActivity(intent);
             }
         });
 
-
-
         askForSendSMSPermission();
-        processLocation();
-
-
         handler.post(periodicUpdate);
+
+        locationUpdate = new LocationUpdate(this,this);
 
     }
 
@@ -89,6 +81,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        locationUpdate.setmMap(mMap);
 
 
 
@@ -100,17 +93,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         public void run() {
             // scheduled another events to be in 10 seconds later
-            handler.postDelayed(periodicUpdate, 10*1000 );
+            handler.postDelayed(periodicUpdate, sendSMSEveryInSeconds*1000 );
                     // below is whatever you want to do
-            Button button = findViewById(R.id.SendSMSButton);
-            if(temp){
-            button.setText("@string/asdasd");
-            temp = false;
-            }
-            else{
-                button.setText("@string/weszłotu");
-                temp =true;
-            }
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MapsActivity.this);
+                //SmsManager.getDefault().sendTextMessage("+48510602840",null,"", null ,null );
+
+
 
         }
     };
@@ -141,44 +130,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // Permission has already been granted
 
         }
-    }
-
-
-
-
-    public void processLocation(){
-
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-// Define a listener that responds to location updates
-        locationListener = new LocationListener() {
-            public void onLocationChanged(Location location) {
-                // Called when a new location is found by the network location provider.
-                userLocation = location;
-                LatLng userPosition = new LatLng(userLocation.getLatitude(), userLocation.getLongitude());
-              //  marker.remove();
-                mMap.addCircle(new CircleOptions().radius(1).center(userPosition));
-
-                userLat = userPosition.latitude;
-                userLng = userPosition.longitude;
-
-                TextView temp = findViewById(R.id.textView);
-                TextView temp2 = findViewById(R.id.textView2);
-                temp.setText(userLat + "");
-                temp2.setText(userLng + "");
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition,zoomlvl));
-
-            }
-
-            public void onStatusChanged(String provider, int status, Bundle extras) {}
-
-            public void onProviderEnabled(String provider) {}
-
-            public void onProviderDisabled(String provider) {}
-        };
-
-// Register the listener with the Location Manager to receive location updates
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 0, locationListener);
-
     }
 
 
