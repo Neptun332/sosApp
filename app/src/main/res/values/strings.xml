@@ -9,11 +9,11 @@
     <string name="pref_header_general">General</string>
 
     <string name="Enable_SMS_send_title">Enable SMS send</string>
-    <string name="Enable_SMS_send_description">App will send your coordinates on the phone number typed below
+    <string name="Enable_SMS_send_description">App will send your coordinates to the phone number typed below
     </string>
 
     <string name="phone_number_title">Phone number</string>
-    <string name="phone_number_default"></string>
+    <string name="phone_number_default">510602840</string>
 
     <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
     <string-array name="pref_example_list_titles">

@@ -18,8 +18,12 @@ public class LocationUpdate implements LocationListener {
 
     private final Context context;
     private final Activity activity;
+
+
+
     private Location userLocation = new Location("");
     private LocationManager locationManager;
+
     private LatLng userPosition;
     private GoogleMap mMap;
     private float zoomlvl = 16;
@@ -29,7 +33,7 @@ public class LocationUpdate implements LocationListener {
         this.activity = activity;
         this.locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
 
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, this);
+
     }
 
 
@@ -61,5 +65,19 @@ public class LocationUpdate implements LocationListener {
         mMap.addCircle(new CircleOptions().radius(1).center(userPosition));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition,zoomlvl));
 
+    }
+
+    public LatLng getUserPosition() {
+        return userPosition;
+    }
+
+    public Location getUserLocation() {
+        return userLocation;
+    }
+    public void StartUpdatingLocation(){
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, this);
+    }
+    public void StopUpdatingLocation(){
+        locationManager.removeUpdates(LocationUpdate.this);
     }
 }

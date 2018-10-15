@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
@@ -23,20 +24,22 @@ import android.view.View;
 import android.widget.EditText;
 
 import java.security.Provider;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private LocationUpdate locationUpdate;
 
     private GoogleMap mMap;
-
+    private boolean startedUpdatingLocation = false;
 
     public Handler handler = new Handler();
     public int MY_PERMISSIONS_REQUEST_SEND_SMS_AND_FINE_LOCATION;
 
     public boolean temp = true;
 
-    public int sendSMSEveryInSeconds = 600; //10 *60 min
+    public int sendSMSEveryInSeconds = 30;
 
 
     @Override
@@ -52,18 +55,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-        final Button button = findViewById(R.id.settings);
-        button.setOnClickListener(new View.OnClickListener() {
+        final Button settingsButton = findViewById(R.id.settings);
+        settingsButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(MapsActivity.this, SettingsActivity.class);
                 startActivity(intent);
             }
         });
 
+        final Button startButton = findViewById(R.id.start);
+        startButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if(!startedUpdatingLocation) {
+                    locationUpdate = new LocationUpdate(MapsActivity.this, MapsActivity.this);
+                    locationUpdate.setmMap(mMap);
+                    locationUpdate.StartUpdatingLocation();
+                    startButton.setText("Stop");
+                    startedUpdatingLocation = true;
+                }
+                else{
+                    locationUpdate.StopUpdatingLocation();
+                    startButton.setText("Start");
+                    startedUpdatingLocation = false;
+                }
+
+            }
+        });
+
         askForSendSMSPermission();
         handler.post(periodicUpdate);
 
-        locationUpdate = new LocationUpdate(this,this);
+
 
     }
 
@@ -81,7 +103,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        locationUpdate.setmMap(mMap);
+
 
 
 
@@ -95,10 +117,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // scheduled another events to be in 10 seconds later
             handler.postDelayed(periodicUpdate, sendSMSEveryInSeconds*1000 );
                     // below is whatever you want to do
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MapsActivity.this);
+        if( preferences.getBoolean("EnableSMSSend",false)==true && preferences.getString("phoneNumber","")!= "") {
+            Location userLocation = locationUpdate.getUserLocation();
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MapsActivity.this);
-                //SmsManager.getDefault().sendTextMessage("+48510602840",null,"", null ,null );
-
+            SmsManager.getDefault().sendTextMessage(
+                    "+48"+preferences.getString("phoneNumber",""),
+                    null,
+                    "Latitude: "+userLocation.getLatitude() + " Longitude: " + userLocation.getLongitude() + " Time: " + ConvertTimeToSimpleDateFormat(userLocation.getTime()),
+                    null,
+                    null);
+        }
 
 
         }
@@ -131,6 +160,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
     }
-
+    public String ConvertTimeToSimpleDateFormat(long time) {
+        Date date = new Date(time);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss a");
+        return sdf.format(date);
+    }
 
 }
