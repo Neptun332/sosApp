@@ -8,13 +8,12 @@
     <!-- Example General settings -->
     <string name="pref_header_general">General</string>
 
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact
-        based on your message history
+    <string name="Enable_SMS_send_title">Enable SMS send</string>
+    <string name="Enable_SMS_send_description">App will send your coordinates on the phone number typed below
     </string>
 
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
+    <string name="phone_number_title">Phone number</string>
+    <string name="phone_number_default"></string>
 
     <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
     <string-array name="pref_example_list_titles">
