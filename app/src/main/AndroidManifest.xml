@@ -33,8 +33,9 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MapsActivity"
-            android:label="@string/title_activity_maps">
+            android:name=".Activities.MapsActivity"
+            android:label="@string/title_activity_maps"
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -42,9 +43,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
-        <service android:name=".LocationUpdate"></service>
+            android:name=".Activities.SettingsActivity"
+            android:label="@string/title_activity_settings" />
+
+        <service android:name=".Services.LocationUpdateService" />
+
+        <activity android:name=".Activities.ToursActivity"></activity>
     </application>
 
 </manifest>

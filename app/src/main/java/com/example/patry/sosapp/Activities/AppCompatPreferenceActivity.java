@@ -1,4 +1,4 @@
-package com.example.patry.sosapp;
+package com.example.patry.sosapp.Activities;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

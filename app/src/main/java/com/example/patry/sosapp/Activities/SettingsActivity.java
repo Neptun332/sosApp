@@ -1,4 +1,4 @@
-package com.example.patry.sosapp;
+package com.example.patry.sosapp.Activities;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -18,6 +18,8 @@ import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.view.MenuItem;
+
+import com.example.patry.sosapp.R;
 
 import java.util.List;
 
