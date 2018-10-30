@@ -15,6 +15,8 @@ public class TourViewModel extends AndroidViewModel {
     private TourRepo tourRepo;
     private LiveData<List<Tour>> allTours;
 
+    private long currentTourId;
+
     public TourViewModel(@NonNull Application application) {
         super(application);
         tourRepo = new TourRepo(application);
@@ -23,7 +25,7 @@ public class TourViewModel extends AndroidViewModel {
     }
 
     public void insert(Tour tour){
-        tourRepo.insert(tour);
+         tourRepo.insert(tour);
     }
 
     public void update(Tour tour){
@@ -41,4 +43,14 @@ public class TourViewModel extends AndroidViewModel {
     public LiveData<List<Tour>> getAllTours(){
         return allTours;
     }
+
+    public LiveData<Tour> getTourByTimeStamp(long timestamp){
+        return tourRepo.getTourByTimeStamp(timestamp);
+    }
+
+    public long getCurrentTourId() {
+        return tourRepo.getCurrentTourId();
+    }
+
+
 }

@@ -52,6 +52,7 @@ public class LocationUpdateService extends Service implements
 
     private ArrayList<TourCoords> tourCoordsList = new ArrayList<>();
     private Tour tour;
+    private int TOUR_ID = 0;
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss a");
     @Override
@@ -161,7 +162,6 @@ public class LocationUpdateService extends Service implements
 
     @Override
     public void onLocationChanged(Location location) {
-
         Location userLocation = location;
         if (userLocation != null) {
             Intent i = new Intent("location_update");
@@ -169,7 +169,7 @@ public class LocationUpdateService extends Service implements
             sendBroadcast(i);
             long time = location.getTime();
             TourCoords tourCoords = new TourCoords(
-                    tour.getId(),
+                    TOUR_ID,
                     location.getLatitude(),
                     location.getLongitude(),
                     time,

@@ -60,6 +60,10 @@ public class TourCoords implements Parcelable {
         this.id = id;
     }
 
+    public void setTourId(int tourId) {
+        this.tourId = tourId;
+    }
+
     public int getId() {
         return id;
     }

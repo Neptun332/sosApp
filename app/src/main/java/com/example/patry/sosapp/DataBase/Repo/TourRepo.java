@@ -15,6 +15,8 @@ import java.util.List;
 public class TourRepo {
     private TourDao tourDao;
     private LiveData<List<Tour>> allTours;
+    private static long currentTourId;
+
 
     public TourRepo(Application application){
         SosAppDatabase database = SosAppDatabase.getSosAppDatabase(application);
@@ -42,19 +44,29 @@ public class TourRepo {
         return allTours;
     }
 
+    public LiveData<Tour> getTourByTimeStamp(long timestamp) {
+
+       return tourDao.getTourByTimeStamp(timestamp);
+    }
+
     private static class InsertTourAsyncTask extends AsyncTask<Tour,Void, Void>{
 
         private TourDao tourDao;
-
+        public long tourId;
         private InsertTourAsyncTask(TourDao tourDao){
             this.tourDao = tourDao;
         }
 
         @Override
         protected Void doInBackground(Tour... tours){
-
-            tourDao.insert(tours[0]);
+            tourId = tourDao.insert(tours[0]);
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            setCurrentTourId(tourId);
         }
     }
 
@@ -104,5 +116,13 @@ public class TourRepo {
             tourDao.deleteAllTours();
             return null;
         }
+    }
+
+    public static void setCurrentTourId(long id) {
+        currentTourId = id;
+    }
+
+    public long getCurrentTourId() {
+        return currentTourId;
     }
 }

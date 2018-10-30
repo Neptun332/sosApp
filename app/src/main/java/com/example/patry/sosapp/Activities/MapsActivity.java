@@ -58,7 +58,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-    private BroadcastReceiver broadcastReceiver;
+    private BroadcastReceiver broadcastReceiverPostion;
+    private BroadcastReceiver broadcastReceiverList;
 
     public static boolean isServiceRunning =false;
 
@@ -79,6 +80,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     private static Tour tour;
+    private long currenTourId;
+    private ArrayList<TourCoords> tourCoordsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,17 +109,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     timestamp = new Timestamp(System.currentTimeMillis());
                     startDate = timestamp.getTime();
                     tour = new Tour("", startDate, sdf.format(timestamp));
+                    tourViewModel.insert(tour);
 
                     checkAndStartService();
                     startButton.setText("Stop");
                     startedUpdatingLocation = true;
                     mMap.setMyLocationEnabled(true);
+
+
+
                 } else {
+                    currenTourId = tourViewModel.getCurrentTourId();
                     stopService(new Intent(MapsActivity.this, LocationUpdateService.class));
                     asyncTask.cancel(true);
                     startButton.setText("Start");
                     startedUpdatingLocation = false;
+
                     OpenSaveDialog();
+
                 }
 
             }
@@ -133,18 +143,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         askForSendSMSPermission();
 
         tourViewModel = ViewModelProviders.of(this).get(TourViewModel.class);
-        tourViewModel.getAllTours().observe(this, new Observer<List<Tour>>() {
-            @Override
-            public void onChanged(@Nullable List<Tour> tours) {
-
-                adapter.setTours(tours);
-
-            }
-        });
-
 
         tourCoordsViewModel = ViewModelProviders.of(this).get(TourCoordsViewModel.class);
-
 
     }
 
@@ -200,24 +200,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onResume() {
         super.onResume();
-        if(broadcastReceiver == null){
-            broadcastReceiver = new BroadcastReceiver() {
+        if(broadcastReceiverPostion == null){
+            broadcastReceiverPostion = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    ArrayList<TourCoords> tourCoordsList = intent.getParcelableExtra("coordList");
                     userPosition =  (LatLng) intent.getExtras().get("coordinates");
                     Toast.makeText(MapsActivity.this,userPosition.latitude + " " + userPosition.longitude, Toast.LENGTH_LONG).show();
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition,ZOOM_LVL));
-                    if (tourCoordsList != null) {
-                        tourCoordsViewModel.insertList(tourCoordsList);
-                    }
-
-
 
                 }
             };
         }
-        registerReceiver(broadcastReceiver,new IntentFilter("location_update"));
+
+        registerReceiver(broadcastReceiverPostion,new IntentFilter("location_update"));
+
+        if(broadcastReceiverList == null){
+            broadcastReceiverList = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+
+                    tourCoordsList = intent.getParcelableArrayListExtra("coordList");
+                }
+            };
+        }
+        registerReceiver(broadcastReceiverList,new IntentFilter("location_list"));
     }
 
     @Override
@@ -284,12 +290,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void SaveTourName(String tourName) {
             tour.setName(tourName);
-            tourViewModel.insert(tour);
-            //saveCoordsofTour();
+            tour.setId((int)currenTourId);
+            tourViewModel.update(tour);
+            saveCoordsofTour();
 
     }
 
     public static Tour getTour() {
         return tour;
     }
+
+    public  void saveCoordsofTour() {
+
+        if (tourCoordsList != null) {
+            for (int i = 0; i < tourCoordsList.size(); i++) {
+                tourCoordsList.get(i).setTourId((int) currenTourId);
+            }
+            tourCoordsViewModel.insertList(tourCoordsList,(int) currenTourId);
+        }
+    }
+
+
 }

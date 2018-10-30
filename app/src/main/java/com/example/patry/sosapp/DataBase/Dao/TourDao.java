@@ -16,7 +16,7 @@ import java.util.List;
 public interface TourDao {
 
     @Insert
-    void insert(Tour tour);
+    Long insert(Tour tour);
 
     @Update
     void update(Tour tour);
@@ -27,7 +27,10 @@ public interface TourDao {
     @Query("DELETE FROM Tours")
     void deleteAllTours();
 
-    @Query("SELECT * FROM TOURS ORDER BY ID DESC")
+    @Query("SELECT * FROM Tours ORDER BY id DESC")
     LiveData<List<Tour>> getAllTours();
+
+    @Query("SELECT * FROM Tours WHERE timeStamp = :timeStamp")
+    LiveData<Tour> getTourByTimeStamp(long timeStamp);
 
 }

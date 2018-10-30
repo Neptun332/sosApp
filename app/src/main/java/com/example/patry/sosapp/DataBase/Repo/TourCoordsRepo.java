@@ -41,8 +41,8 @@ public class TourCoordsRepo {
         new DeleteAllTourCoordsAsyncTask(tourCoordsDao).execute();
     }
 
-    public void insertListToursCoords(ArrayList<TourCoords> tourCoordsList){
-        new InsertListToursCoordsAsyncTask(tourCoordsDao).execute(tourCoordsList);
+    public void insertListToursCoords(ArrayList<TourCoords> tourCoordsList, int tourId){
+        new InsertListToursCoordsAsyncTask(tourCoordsDao, tourId).execute(tourCoordsList);
     }
 
     public LiveData<List<TourCoords>> getAllTourCoords() {
@@ -115,15 +115,18 @@ public class TourCoordsRepo {
     private static class InsertListToursCoordsAsyncTask extends AsyncTask<ArrayList<TourCoords>,Void, Void>{
 
         private TourCoordsDao tourCoordsDao;
+        private int tourId;
 
-        private InsertListToursCoordsAsyncTask(TourCoordsDao tourCoordsDao){
+        private InsertListToursCoordsAsyncTask(TourCoordsDao tourCoordsDao, int tourId){
             this.tourCoordsDao = tourCoordsDao;
+            this.tourId = tourId;
         }
 
         @Override
         protected Void doInBackground(ArrayList<TourCoords>... tourCoordsList){
             for (int i =0; i<tourCoordsList[0].size() ; i++) {
                 TourCoords tourCoords = tourCoordsList[0].get(i);
+                tourCoords.setTourId(tourId);
                 tourCoordsDao.insert(tourCoords);
             }
             return null;
