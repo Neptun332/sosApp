@@ -9,6 +9,7 @@
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-feature android:name="android.hardware.location.gps" />
 
@@ -34,8 +35,10 @@
 
         <activity
             android:name=".Activities.MapsActivity"
+            android:configChanges="orientation|keyboardHidden"
             android:label="@string/title_activity_maps"
-            android:launchMode="singleInstance">
+            android:launchMode="singleInstance"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -44,11 +47,14 @@
         </activity>
         <activity
             android:name=".Activities.SettingsActivity"
-            android:label="@string/title_activity_settings" />
+            android:label="@string/title_activity_settings"
+            android:screenOrientation="portrait" />
 
         <service android:name=".Services.LocationUpdateService" />
 
-        <activity android:name=".Activities.ToursActivity"></activity>
+        <activity
+            android:name=".Activities.ToursActivity"
+            android:screenOrientation="portrait" ></activity>
     </application>
 
 </manifest>

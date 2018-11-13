@@ -14,20 +14,22 @@ public class Tour {
 
 
     @PrimaryKey(autoGenerate = true)
-    private int id;
+    private long id;
 
     private String name;
 
     private long timeStamp;
     private String date;
+    private boolean isSaved;
 
-    public Tour(String name, long timeStamp ,String date) {
+    public Tour(String name, long timeStamp ,String date, boolean isSaved) {
         this.name = name;
         this.timeStamp = timeStamp;
         this.date = date;
+        this.isSaved = isSaved;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -35,7 +37,11 @@ public class Tour {
         this.name = name;
     }
 
-    public int getId() {
+    public void setSaved(boolean saved) {
+        isSaved = saved;
+    }
+
+    public long getId() {
         return id;
     }
 
@@ -49,5 +55,9 @@ public class Tour {
 
     public long getTimeStamp() {
         return timeStamp;
+    }
+
+    public boolean isSaved() {
+        return isSaved;
     }
 }

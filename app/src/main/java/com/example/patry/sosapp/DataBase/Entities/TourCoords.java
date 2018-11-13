@@ -1,5 +1,6 @@
 package com.example.patry.sosapp.DataBase.Entities;
 
+import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Index;
@@ -12,22 +13,23 @@ import java.util.Date;
 import static android.arch.persistence.room.ForeignKey.CASCADE;
 
 @Entity(tableName = "ToursCoords",
-        indices = @Index(value = "tourId", name = "idx"),
-        foreignKeys = @ForeignKey(entity = Tour.class,
+        indices ={@Index("tourId")}, foreignKeys = @ForeignKey(entity = Tour.class,
         parentColumns = "id",
         childColumns = "tourId",
         onDelete = CASCADE))
 public class TourCoords implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
-    private int id;
-    private int tourId;
+    private long id;
+
+    @ColumnInfo(name = "tourId")
+    private long tourId;
     private double latitude;
     private double longitude;
     private long timestamp;
     private String date;
 
-    public TourCoords(int tourId, double latitude, double longitude, long timestamp, String date) {
+    public TourCoords(long tourId, double latitude, double longitude, long timestamp, String date) {
         this.tourId = tourId;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -36,8 +38,8 @@ public class TourCoords implements Parcelable {
     }
 
     protected TourCoords(Parcel in) {
-        id = in.readInt();
-        tourId = in.readInt();
+        id = in.readLong();
+        tourId = in.readLong();
         latitude = in.readDouble();
         longitude = in.readDouble();
         timestamp = in.readLong();
@@ -56,19 +58,19 @@ public class TourCoords implements Parcelable {
         }
     };
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
-    public void setTourId(int tourId) {
+    public void setTourId(long tourId) {
         this.tourId = tourId;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public int getTourId() {
+    public long getTourId() {
         return tourId;
     }
 
@@ -95,8 +97,8 @@ public class TourCoords implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(id);
-        dest.writeInt(tourId);
+        dest.writeLong(id);
+        dest.writeLong(tourId);
         dest.writeDouble(latitude);
         dest.writeDouble(longitude);
         dest.writeLong(timestamp);

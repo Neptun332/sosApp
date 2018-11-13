@@ -14,19 +14,19 @@ import com.example.patry.sosapp.Activities.MapsActivity;
 import com.example.patry.sosapp.DataBase.Entities.Tour;
 import com.example.patry.sosapp.R;
 
-public class TourNameDialog extends AppCompatDialogFragment {
+public class ExportDeleteTourDialog extends AppCompatDialogFragment {
 
-    private EditText tourName;
-    private TourNameDialogListener tourNameDialogListener;
+    private Tour tour;
+    private ExportDeleteTourDialog.ExportDeleteTourDialogListener exportDeleteTourDialogListener;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            tourNameDialogListener = (TourNameDialogListener) context;
+            exportDeleteTourDialogListener = (ExportDeleteTourDialog.ExportDeleteTourDialogListener) context;
         } catch (Exception e) {
             throw new ClassCastException(context.toString()+
-            "must implement TourNameDialogListener");
+                    "must implement ExportDeleteTourDialogListener");
         }
     }
 
@@ -35,39 +35,38 @@ public class TourNameDialog extends AppCompatDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.layout_dialog,null);
+        View view = inflater.inflate(R.layout.export_delete_dialog,null);
 
         builder.setView(view)
-                .setTitle("Tour name")
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setTitle(tour.getName())
+                .setNeutralButton("Cancle", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Tour tour = MapsActivity.getTour();
-                        tourNameDialogListener.DeleteTour(tour);
                     }
                 })
-                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Export", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        String tour = tourName.getText().toString();
-                        tourNameDialogListener.SaveTourName(tour);
+                        exportDeleteTourDialogListener.ExportTour(tour);
                     }
-                });
+                }).setNegativeButton("Delete", new DialogInterface.OnClickListener() {
+                @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        exportDeleteTourDialogListener.DeleteTour(tour);
 
-        tourName = view.findViewById(R.id.tourName);
+                }});
+
 
         return  builder.create();
     }
 
-    public interface TourNameDialogListener{
-        void SaveTourName(String tourName);
+    public interface ExportDeleteTourDialogListener{
+        void ExportTour(Tour tour);
         void DeleteTour(Tour tour);
     }
 
-    @Override
-    public void onCancel(DialogInterface dialog) {
-        super.onCancel(dialog);
-        Tour tour = MapsActivity.getTour();
-        tourNameDialogListener.DeleteTour(tour);
+    public void setTour(Tour tour) {
+        this.tour = tour;
     }
+
 }

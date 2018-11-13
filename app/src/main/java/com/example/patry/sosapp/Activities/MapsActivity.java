@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 
+import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -37,6 +38,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import android.widget.Toast;
 
@@ -80,8 +82,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     private static Tour tour;
-    private long currenTourId;
+    private static long currenTourId;
     private ArrayList<TourCoords> tourCoordsList;
+
+    private static boolean saved = false;
+    private boolean doOnlyOnce = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +113,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (!startedUpdatingLocation) {
                     timestamp = new Timestamp(System.currentTimeMillis());
                     startDate = timestamp.getTime();
-                    tour = new Tour("", startDate, sdf.format(timestamp));
+                    tour = new Tour("", startDate, sdf.format(timestamp), false);
                     tourViewModel.insert(tour);
 
                     checkAndStartService();
@@ -116,7 +121,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     startedUpdatingLocation = true;
                     mMap.setMyLocationEnabled(true);
 
-
+                    saved = false;
+                    doOnlyOnce = true;
 
                 } else {
                     currenTourId = tourViewModel.getCurrentTourId();
@@ -172,6 +178,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Here, thisActivity is the current activity
         if (ContextCompat.checkSelfPermission(MapsActivity.this,
                 Manifest.permission.SEND_SMS)
+                != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(MapsActivity.this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(MapsActivity.this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
 
 
@@ -182,7 +194,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             } else {
                 // No explanation needed; request the permission
                 ActivityCompat.requestPermissions(MapsActivity.this,
-                        new String[]{Manifest.permission.SEND_SMS, Manifest.permission.ACCESS_FINE_LOCATION},
+                        new String[]{Manifest.permission.SEND_SMS, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         MY_PERMISSIONS_REQUEST_SEND_SMS_AND_FINE_LOCATION);
 
                 // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
@@ -206,7 +218,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 public void onReceive(Context context, Intent intent) {
                     userPosition =  (LatLng) intent.getExtras().get("coordinates");
                     Toast.makeText(MapsActivity.this,userPosition.latitude + " " + userPosition.longitude, Toast.LENGTH_LONG).show();
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition,ZOOM_LVL));
+                    mMap.addPolyline(new PolylineOptions().add(userPosition).width(2f).color(Color.RED));
+                    if(doOnlyOnce){
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition,ZOOM_LVL));
+                        doOnlyOnce = false;
+                    }
 
                 }
             };
@@ -214,16 +230,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         registerReceiver(broadcastReceiverPostion,new IntentFilter("location_update"));
 
-        if(broadcastReceiverList == null){
-            broadcastReceiverList = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
 
-                    tourCoordsList = intent.getParcelableArrayListExtra("coordList");
-                }
-            };
-        }
-        registerReceiver(broadcastReceiverList,new IntentFilter("location_list"));
     }
 
     @Override
@@ -290,10 +297,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void SaveTourName(String tourName) {
             tour.setName(tourName);
-            tour.setId((int)currenTourId);
+            tour.setId(currenTourId);
+            tour.setSaved(true);
             tourViewModel.update(tour);
             saveCoordsofTour();
 
+    }
+
+    @Override
+    public void DeleteTour(Tour tour){
+        tour.setId(currenTourId);
+        tourViewModel.delete(tour);
     }
 
     public static Tour getTour() {

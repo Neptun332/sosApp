@@ -30,4 +30,7 @@ public interface TourCoordsDao {
     @Query("SELECT * FROM ToursCoords ORDER BY Id DESC")
     LiveData<List<TourCoords>> getAllTourCoords();
 
+    @Query("SELECT * FROM ToursCoords WHERE tourId=:tourId")
+    List<TourCoords> getAllTourCoordsByTourId(final long tourId);
+
 }

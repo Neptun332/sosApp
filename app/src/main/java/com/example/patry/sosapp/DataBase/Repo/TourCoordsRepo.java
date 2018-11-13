@@ -18,6 +18,7 @@ import java.util.List;
 public class TourCoordsRepo {
     private TourCoordsDao tourCoordsDao;
     private LiveData<List<TourCoords>> allTourCoords;
+    private  List<TourCoords> currentTourCoords;
 
     public TourCoordsRepo(Application application){
         SosAppDatabase database = SosAppDatabase.getSosAppDatabase(application);
@@ -41,8 +42,17 @@ public class TourCoordsRepo {
         new DeleteAllTourCoordsAsyncTask(tourCoordsDao).execute();
     }
 
-    public void insertListToursCoords(ArrayList<TourCoords> tourCoordsList, int tourId){
+    public void insertListToursCoords(ArrayList<TourCoords> tourCoordsList, long tourId){
         new InsertListToursCoordsAsyncTask(tourCoordsDao, tourId).execute(tourCoordsList);
+    }
+
+    public List<TourCoords> getAllTourCoordsByTourId(long tourId){
+        try {
+            currentTourCoords = new getAllTourCoordsByTourIdAsyncTask(tourCoordsDao, tourId).execute(tourId).get();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return currentTourCoords;
     }
 
     public LiveData<List<TourCoords>> getAllTourCoords() {
@@ -115,9 +125,9 @@ public class TourCoordsRepo {
     private static class InsertListToursCoordsAsyncTask extends AsyncTask<ArrayList<TourCoords>,Void, Void>{
 
         private TourCoordsDao tourCoordsDao;
-        private int tourId;
+        private long tourId;
 
-        private InsertListToursCoordsAsyncTask(TourCoordsDao tourCoordsDao, int tourId){
+        private InsertListToursCoordsAsyncTask(TourCoordsDao tourCoordsDao, long tourId){
             this.tourCoordsDao = tourCoordsDao;
             this.tourId = tourId;
         }
@@ -130,6 +140,23 @@ public class TourCoordsRepo {
                 tourCoordsDao.insert(tourCoords);
             }
             return null;
+        }
+    }
+
+    private static class getAllTourCoordsByTourIdAsyncTask extends AsyncTask<Long,Void, List<TourCoords>>{
+
+        private TourCoordsDao tourCoordsDao;
+        private long tourId;
+
+        private getAllTourCoordsByTourIdAsyncTask(TourCoordsDao tourCoordsDao, long tourId){
+            this.tourCoordsDao = tourCoordsDao;
+            this.tourId = tourId;
+        }
+
+        @Override
+        protected List<TourCoords> doInBackground(Long... tourId){
+            return tourCoordsDao.getAllTourCoordsByTourId(tourId[0]);
+
         }
     }
 }

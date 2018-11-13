@@ -16,7 +16,7 @@ import com.example.patry.sosapp.DataBase.Entities.TourCoords;
 import java.util.Date;
 
 
-@Database(entities = {Tour.class, TourCoords.class}, version = 1)
+@Database(entities = {Tour.class, TourCoords.class}, version = 4)
 public abstract class SosAppDatabase extends RoomDatabase {
 
     public abstract TourDao tourDao();
@@ -56,9 +56,9 @@ public abstract class SosAppDatabase extends RoomDatabase {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            tourDao.insert(new Tour("zbc", 123,"data 1"));
-            tourDao.insert(new Tour("asd", 1234,"data 2"));
-            tourDao.insert(new Tour("zbqwec", 12345,"data 3"));
+            tourDao.insert(new Tour("zbc", 123,"data 1",true));
+            tourDao.insert(new Tour("asd", 1234,"data 2",true));
+            tourDao.insert(new Tour("zbqwec", 12345,"data 3",true));
             return null;
         }
     }

@@ -29,7 +29,11 @@ public class TourRepo {
     }
 
     public void update(Tour tour){
-        new UpdateTourAsyncTask(tourDao).execute(tour);
+        try {
+            new UpdateTourAsyncTask(tourDao).execute(tour).get();
+        }catch(Exception e){
+
+        }
     }
 
     public void delete(Tour tour){

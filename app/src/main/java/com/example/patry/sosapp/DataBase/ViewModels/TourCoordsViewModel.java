@@ -46,7 +46,11 @@ public class TourCoordsViewModel extends AndroidViewModel {
         return allToursCoords;
     }
 
-    public void insertList(ArrayList<TourCoords> tourCoordsList, int tourId) {   tourCoordsRepo.insertListToursCoords(tourCoordsList, tourId); }
+    public void insertList(ArrayList<TourCoords> tourCoordsList, long tourId) {   tourCoordsRepo.insertListToursCoords(tourCoordsList, tourId); }
+
+    public List<TourCoords> getAllTourCoordsByTourId(long tourId) {
+       return tourCoordsRepo.getAllTourCoordsByTourId(tourId);
+    }
 
 
 }
